@@ -21,14 +21,17 @@
                 <property name="url"
                           value="jdbc:mysql://localhost:3306/book_db?useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;characterEncoding=utf8"/>
                 <property name="username" value="root"/>
-                <property name="password" value="你的密码"/>
+                <property name="password" value="root"/>
             </dataSource>
         </environment>
     </environments>
     <mappers>
-        <!-- 扫描 com.mapper 包下所有 Mapper 接口（注解方式） -->
-        <package name="com.mapper"/>
-        <!-- 扫描 resources/mapper/ 下的 XML 映射文件（XML 方式） -->
-        <package name="mapper"/>
+        <!-- XML 映射文件（必须全部写在前面，按 DTD 顺序 mapper* 在 package* 之前） -->
+        <mapper resource="mapper/CategoryMapper.xml"/>
+        <mapper resource="mapper/BookMapper.xml"/>
+        <mapper resource="mapper/ReaderMapper.xml"/>
+        <mapper resource="mapper/BookBorrowMapper.xml"/>
+<!--        &lt;!&ndash; 扫描 com.mapper 包下所有 Mapper 接口（注解方式，写在最后） &ndash;&gt;-->
+<!--        <package name="com.mapper"/>-->
     </mappers>
 </configuration>

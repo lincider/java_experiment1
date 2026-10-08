@@ -1,4 +1,4 @@
-﻿package com.mapper;
+package com.mapper;
 
 import com.entity.Reader;
 import java.util.List;
