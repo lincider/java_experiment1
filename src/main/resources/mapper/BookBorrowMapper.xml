@@ -1,0 +1,52 @@
+﻿<?xml version=""1.0"" encoding=""UTF-8""?>
+<!DOCTYPE mapper PUBLIC ""-//mybatis.org//DTD Mapper 3.0//EN""
+        ""http://mybatis.org/dtd/mybatis-3-mapper.dtd"">
+
+<mapper namespace=""com.mapper.BookBorrowMapper"">
+
+    <!--
+        BookBorrow（借阅记录） Mapper
+        注意：book_borrow 表已冗余 bookName / bookAuthor / readerName，
+              selectAll() 直接返回借阅详情，无需 JOIN 其他表
+    -->
+
+    <resultMap id=""BaseResultMap"" type=""BookBorrow"">
+        <id property=""id""          column=""id""/>
+        <result property=""bookId""      column=""book_id""/>
+        <result property=""bookName""    column=""book_name""/>
+        <result property=""bookAuthor""  column=""book_author""/>
+        <result property=""readerId""    column=""reader_id""/>
+        <result property=""readerName""  column=""reader_name""/>
+        <result property=""borrowDate""  column=""borrow_date""/>
+    </resultMap>
+
+    <!-- 查询所有借阅记录 -->
+    <select id=""selectAll"" resultMap=""BaseResultMap"">
+        SELECT id, book_id, book_name, book_author,
+               reader_id, reader_name, borrow_date
+        FROM book_borrow
+        ORDER BY id
+    </select>
+
+    <!-- 根据 ID 查询借阅记录 -->
+    <select id=""selectById"" resultMap=""BaseResultMap"">
+        SELECT id, book_id, book_name, book_author,
+               reader_id, reader_name, borrow_date
+        FROM book_borrow
+        WHERE id = #{id}
+    </select>
+
+    <!-- 新增借阅记录 -->
+    <insert id=""insert"" useGeneratedKeys=""true"" keyProperty=""id"">
+        INSERT INTO book_borrow (book_id, book_name, book_author,
+                                 reader_id, reader_name, borrow_date)
+        VALUES (#{bookId}, #{bookName}, #{bookAuthor},
+                #{readerId}, #{readerName}, #{borrowDate})
+    </insert>
+
+    <!-- 根据 ID 删除借阅记录 -->
+    <delete id=""delete"">
+        DELETE FROM book_borrow WHERE id = #{id}
+    </delete>
+
+</mapper>

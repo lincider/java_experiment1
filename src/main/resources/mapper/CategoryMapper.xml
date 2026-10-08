@@ -1,0 +1,58 @@
+﻿<?xml version=""1.0"" encoding=""UTF-8""?>
+<!DOCTYPE mapper PUBLIC ""-//mybatis.org//DTD Mapper 3.0//EN""
+        ""http://mybatis.org/dtd/mybatis-3-mapper.dtd"">
+
+<!-- namespace 指向对应的 Mapper 接口 -->
+<mapper namespace=""com.mapper.CategoryMapper"">
+
+    <!-- ===================== 一对多：分类 + 图书列表 ===================== -->
+
+    <!--
+        方案：分步查询（Nested Select）
+        第 1 步：查出所有分类
+        第 2 步：通过 category_id 查每分类下的图书（collection 触发 selectAllBooksByCategoryId）
+    -->
+    <resultMap id=""BaseResultMap"" type=""Category"">
+        <id property=""id"" column=""id""/>
+        <result property=""name"" column=""name""/>
+    </resultMap>
+
+    <resultMap id=""CategoryWithBooksResultMap"" type=""Category"" extends=""BaseResultMap"">
+        <!-- 一对多：查出该分类下所有图书，映射到 books 集合 -->
+        <collection property=""books""
+                    column=""id""
+                    select=""com.mapper.BookMapper.selectAllBooksByCategoryId""/>
+    </resultMap>
+
+    <!--
+        查询所有分类（带图书列表）
+        步骤 1：先查所有分类
+        步骤 2：MyBatis 自动根据 collection 的 select 属性，再次查询每分类下的图书
+    -->
+    <select id=""selectAllWithBooks"" resultMap=""CategoryWithBooksResultMap"">
+        SELECT id, name FROM category ORDER BY id
+    </select>
+
+    <!-- ===================== 基础 CRUD ===================== -->
+
+    <!-- 根据 ID 查询分类 -->
+    <select id=""selectById"" resultMap=""BaseResultMap"">
+        SELECT id, name FROM category WHERE id = #{id}
+    </select>
+
+    <!-- 新增分类（自增 id 会回填到 category 对象） -->
+    <insert id=""insert"" useGeneratedKeys=""true"" keyProperty=""id"">
+        INSERT INTO category (name) VALUES (#{name})
+    </insert>
+
+    <!-- 更新分类 -->
+    <update id=""update"">
+        UPDATE category SET name = #{name} WHERE id = #{id}
+    </update>
+
+    <!-- 删除分类 -->
+    <delete id=""delete"">
+        DELETE FROM category WHERE id = #{id}
+    </delete>
+
+</mapper>

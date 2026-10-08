@@ -1,0 +1,73 @@
+﻿<?xml version=""1.0"" encoding=""UTF-8""?>
+<!DOCTYPE mapper PUBLIC ""-//mybatis.org//DTD Mapper 3.0//EN""
+        ""http://mybatis.org/dtd/mybatis-3-mapper.dtd"">
+
+<mapper namespace=""com.mapper.ReaderMapper"">
+
+    <!-- ===================== 多对多：读者 + 借阅的图书列表 ===================== -->
+
+    <!-- 基础映射：读者自身字段 -->
+    <resultMap id=""BaseResultMap"" type=""Reader"">
+        <id property=""id"" column=""id""/>
+        <result property=""name"" column=""name""/>
+        <result property=""phone"" column=""phone""/>
+    </resultMap>
+
+    <!--
+        多对多关联：每个读者借阅的图书列表
+        通过 book_borrow 中间表关联，分 3 步：
+          第 1 步：查所有读者
+          第 2 步：通过 collection 的 select 查该读者在 book_borrow 中关联的所有 book_id
+          第 3 步：再通过 select 查每本书的详情（复用 BookMapper 的方法）
+    -->
+    <resultMap id=""ReaderWithBooksResultMap"" type=""Reader"" extends=""BaseResultMap"">
+        <!--
+            多对多 collection：
+            column=""{reader_id=id}"" 表示将主查询的 id 列作为参数，
+            传给 selectBookIdsByReaderId，查询该读者关联的所有 book_id
+        -->
+        <collection property=""books""
+                    column=""{readerId=id}""
+                    select=""com.mapper.BookMapper.selectBooksByReaderId""/>
+    </resultMap>
+
+    <!-- 查询所有读者（带借阅图书列表） -->
+    <select id=""selectAllWithBooks"" resultMap=""ReaderWithBooksResultMap"">
+        SELECT id, name, phone FROM reader ORDER BY id
+    </select>
+
+    <!--
+        分步查询辅助：被 collection 调用，根据 reader_id 查出该读者关联的所有图书
+        通过 book_borrow 中间表查询
+    -->
+    <select id=""selectBooksByReaderId"" resultMap=""BaseResultMap"">
+        SELECT b.id, b.name, b.author, b.price, b.category_id
+        FROM book b
+        JOIN book_borrow bb ON b.id = bb.book_id
+        WHERE bb.reader_id = #{readerId}
+        ORDER BY b.id
+    </select>
+
+    <!-- ===================== 基础 CRUD ===================== -->
+
+    <!-- 根据 ID 查询读者 -->
+    <select id=""selectById"" resultMap=""BaseResultMap"">
+        SELECT id, name, phone FROM reader WHERE id = #{id}
+    </select>
+
+    <!-- 新增读者 -->
+    <insert id=""insert"" useGeneratedKeys=""true"" keyProperty=""id"">
+        INSERT INTO reader (name, phone) VALUES (#{name}, #{phone})
+    </insert>
+
+    <!-- 更新读者 -->
+    <update id=""update"">
+        UPDATE reader SET name = #{name}, phone = #{phone} WHERE id = #{id}
+    </update>
+
+    <!-- 删除读者 -->
+    <delete id=""delete"">
+        DELETE FROM reader WHERE id = #{id}
+    </delete>
+
+</mapper>

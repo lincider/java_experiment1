@@ -26,7 +26,9 @@
         </environment>
     </environments>
     <mappers>
-        <!--扫描com.mapper下全部Mapper接口 -->
+        <!-- 扫描 com.mapper 包下所有 Mapper 接口（注解方式） -->
         <package name="com.mapper"/>
+        <!-- 扫描 resources/mapper/ 下的 XML 映射文件（XML 方式） -->
+        <package name="mapper"/>
     </mappers>
 </configuration>
