@@ -1,32 +1,32 @@
-﻿<?xml version=""1.0"" encoding=""UTF-8""?>
-<!DOCTYPE mapper PUBLIC ""-//mybatis.org//DTD Mapper 3.0//EN""
-        ""http://mybatis.org/dtd/mybatis-3-mapper.dtd"">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace=""com.mapper.BookMapper"">
+<mapper namespace="com.mapper.BookMapper">
 
     <!-- ===================== 多对一：图书 + 所属分类 ===================== -->
 
     <!-- 基础映射：图书自身字段 -->
-    <resultMap id=""BaseResultMap"" type=""Book"">
-        <id property=""id"" column=""id""/>
-        <result property=""name"" column=""name""/>
-        <result property=""author"" column=""author""/>
-        <result property=""price"" column=""price""/>
-        <result property=""categoryId"" column=""category_id""/>
+    <resultMap id="BaseResultMap" type="Book">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="author" column="author"/>
+        <result property="price" column="price"/>
+        <result property="categoryId" column="category_id"/>
     </resultMap>
 
     <!--
         多对一关联：每本书所属的分类信息
-        column=""category_id"" 是主查询的列，作为参数传给 selectCategoryById
+        column="category_id" 是主查询的列，作为参数传给 selectCategoryById
     -->
-    <resultMap id=""BookWithCategoryResultMap"" type=""Book"" extends=""BaseResultMap"">
-        <association property=""category""
-                     column=""category_id""
-                     select=""com.mapper.CategoryMapper.selectById""/>
+    <resultMap id="BookWithCategoryResultMap" type="Book" extends="BaseResultMap">
+        <association property="category"
+                     column="category_id"
+                     select="com.mapper.CategoryMapper.selectById"/>
     </resultMap>
 
     <!-- 查询所有图书（带分类信息） -->
-    <select id=""selectAllWithCategory"" resultMap=""BookWithCategoryResultMap"">
+    <select id="selectAllWithCategory" resultMap="BookWithCategoryResultMap">
         SELECT id, name, author, price, category_id FROM book ORDER BY id
     </select>
 
@@ -34,7 +34,7 @@
         分步查询辅助：被 CategoryMapper.xml 的一对多 collection 调用
         根据 category_id（即分类主键 id）查出分类信息
     -->
-    <select id=""selectAllBooksByCategoryId"" resultMap=""BaseResultMap"">
+    <select id="selectAllBooksByCategoryId" resultMap="BaseResultMap">
         SELECT id, name, author, price, category_id
         FROM book
         WHERE category_id = #{categoryId}
@@ -44,25 +44,25 @@
     <!-- ===================== 基础 CRUD ===================== -->
 
     <!-- 根据 ID 查询图书 -->
-    <select id=""selectById"" resultMap=""BaseResultMap"">
+    <select id="selectById" resultMap="BaseResultMap">
         SELECT id, name, author, price, category_id FROM book WHERE id = #{id}
     </select>
 
     <!-- 新增图书 -->
-    <insert id=""insert"" useGeneratedKeys=""true"" keyProperty=""id"">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO book (name, author, price, category_id)
         VALUES (#{name}, #{author}, #{price}, #{categoryId})
     </insert>
 
     <!-- 更新图书 -->
-    <update id=""update"">
+    <update id="update">
         UPDATE book
         SET name = #{name}, author = #{author}, price = #{price}, category_id = #{categoryId}
         WHERE id = #{id}
     </update>
 
     <!-- 删除图书 -->
-    <delete id=""delete"">
+    <delete id="delete">
         DELETE FROM book WHERE id = #{id}
     </delete>
 
