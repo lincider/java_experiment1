@@ -1,6 +1,9 @@
 package com.mapper;
 
 import com.entity.Book;
+import org.apache.ibatis.annotations.Param;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -33,4 +36,15 @@ public interface BookMapper {
      * 根据 ID 删除图书
      */
     int delete(Integer id);
+
+    /**
+     * 多条件动态查询图书
+     * 哪个参数非 null（且 name/author 非空串）就拼哪个条件
+     * 所有参数都传 null 时返回全部图书
+     */
+    List<Book> selectByCondition(@Param("name") String name,
+                                 @Param("author") String author,
+                                 @Param("categoryId") Integer categoryId,
+                                 @Param("minPrice") BigDecimal minPrice,
+                                 @Param("maxPrice") BigDecimal maxPrice);
 }

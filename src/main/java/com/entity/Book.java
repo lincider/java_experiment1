@@ -9,6 +9,7 @@ public class Book {
     private String author;
     private BigDecimal price;
     private Integer categoryId;
+    private Category category;
 
     public Integer getId()             { return id; }
     public void setId(Integer id)     { this.id = id; }
@@ -24,6 +25,9 @@ public class Book {
 
     public Integer getCategoryId()         { return categoryId; }
     public void setCategoryId(Integer categoryId) { this.categoryId = categoryId; }
+
+    public Category getCategory()          { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
     @Override
     public String toString() {

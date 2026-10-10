@@ -107,4 +107,76 @@ public class BookMapperTest {
         System.out.println("影响行数：" + rows);
         assert rows == 1 : "删除失败";
     }
+
+    // ===================== 多条件动态查询（if / where）=====================
+
+    /**
+     * 全参数传 null → 不拼任何 WHERE，返回全部图书（>= 5 本种子数据）
+     * 验证点：<where> 标签在所有 <if> 都不成立时不应拼出 "WHERE"
+     */
+    @Test
+    public void testSelectByCondition_全不传_返回全部() {
+        List<Book> list = mapper.selectByCondition(null, null, null, null, null);
+        System.out.println("===== 动态查询：全不传 =====");
+        System.out.println("共 " + list.size() + " 本");
+        assert list.size() >= 5 : "全不传应返回至少 5 本种子数据，实际：" + list.size();
+    }
+
+    /**
+     * 只按书名模糊搜 "Java" → 应匹配 1 本（Java编程思想）
+     * 验证点：<if test="name != null and name != ''"> 分支生效
+     */
+    @Test
+    public void testSelectByCondition_只传书名模糊搜() {
+        List<Book> list = mapper.selectByCondition("Java", null, null, null, null);
+        System.out.println("===== 动态查询：书名含 Java =====");
+        list.forEach(b -> System.out.println("  - " + b.getName()));
+        assert list.size() == 1 : "应匹配 1 本，实际：" + list.size();
+        for (Book b : list) {
+            assert b.getName().contains("Java") : "书名不含 Java：" + b.getName();
+        }
+    }
+
+    /**
+     * 书名 + 分类 交集：name="Java" + categoryId=1(计算机) → 只剩《Java编程思想》1 本
+     * 验证点：多个 <if> 同时生效，AND 拼接正确
+     */
+    @Test
+    public void testSelectByCondition_书名和分类交集() {
+        List<Book> list = mapper.selectByCondition("Java", null, 1, null, null);
+        System.out.println("===== 动态查询：书名含 Java + 计算机分类 =====");
+        list.forEach(b -> System.out.println("  - " + b.getName() + " / categoryId=" + b.getCategoryId()));
+        assert list.size() == 1 : "应匹配 1 本，实际：" + list.size();
+        assert "Java编程思想".equals(list.get(0).getName()) : "书名应为 Java编程思想";
+    }
+
+    /**
+     * 价格区间 [40, 60] → 应匹配 2 本（三体 56、明朝那些事儿 42）
+     * 验证点：minPrice / maxPrice 两个数字条件同时生效
+     */
+    @Test
+    public void testSelectByCondition_价格区间筛选() {
+        List<Book> list = mapper.selectByCondition(
+            null, null, null, new BigDecimal("40"), new BigDecimal("60"));
+        System.out.println("===== 动态查询：价格区间 40~60 =====");
+        list.forEach(b -> System.out.println("  - " + b.getName() + " / " + b.getPrice()));
+        assert list.size() == 2 : "应匹配 2 本，实际：" + list.size();
+        for (Book b : list) {
+            assert b.getPrice().compareTo(new BigDecimal("40")) >= 0 : "价格低于下限：" + b.getPrice();
+            assert b.getPrice().compareTo(new BigDecimal("60")) <= 0 : "价格高于上限：" + b.getPrice();
+        }
+    }
+
+    /**
+     * 书名传空串 "" → 应被当成"不传"处理，返回全部（与全不传结果一致）
+     * 验证点：OGNL 表达式 name != '' 判空生效
+     */
+    @Test
+    public void testSelectByCondition_书名传空串_视为不传() {
+        int allCount = mapper.selectByCondition(null, null, null, null, null).size();
+        int emptyStrCount = mapper.selectByCondition("", null, null, null, null).size();
+        System.out.println("===== 动态查询：书名传空串 =====");
+        System.out.println("全不传：" + allCount + " 本，空串：" + emptyStrCount + " 本");
+        assert allCount == emptyStrCount : "空串应视为不传，两者结果应一致";
+    }
 }
