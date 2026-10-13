@@ -88,6 +88,75 @@ public class BookMapperTest {
         session.commit();
     }
 
+    // ===================== 动态更新（set 标签）=====================
+
+    /**
+     * 场景：只改价格 —— 模拟管理员给图书调价
+     * 验证：只有 price 列被更新，其他列保持原值
+     */
+    @Test
+    public void testDynamicUpdate_只改价格() {
+        Book before = mapper.selectById(1);
+        String oldName = before.getName();
+        String oldAuthor = before.getAuthor();
+        Integer oldCategoryId = before.getCategoryId();
+        BigDecimal oldPrice = before.getPrice();
+
+        Book b = new Book();
+        b.setId(1);
+        b.setPrice(new BigDecimal("99.00"));
+        int rows = mapper.dynamicUpdate(b);
+        session.commit();
+
+        Book after = mapper.selectById(1);
+        System.out.println("===== 动态更新：只改价格 =====");
+        System.out.println("影响行数：" + rows);
+        System.out.println("更新后：" + after);
+
+        assert rows == 1 : "更新失败";
+        assert new BigDecimal("99.00").compareTo(after.getPrice()) == 0 : "价格未更新";
+        assert oldName.equals(after.getName()) : "书名被意外修改了！";
+        assert oldAuthor.equals(after.getAuthor()) : "作者被意外修改了！";
+        assert oldCategoryId.equals(after.getCategoryId()) : "分类被意外修改了！";
+
+        before.setPrice(oldPrice);
+        mapper.update(before);
+        session.commit();
+    }
+
+    /**
+     * 场景：同时改书名和分类 —— 模拟图书归档调整 + 书名勘误
+     * 验证：多个 <if> 分支同时生效，逗号拼接正确
+     */
+    @Test
+    public void testDynamicUpdate_同时改书名和分类() {
+        Book before = mapper.selectById(1);
+        BigDecimal oldPrice = before.getPrice();
+        String oldAuthor = before.getAuthor();
+
+        Book b = new Book();
+        b.setId(1);
+        b.setName("Java编程思想（第四版）");
+        b.setCategoryId(2);
+        int rows = mapper.dynamicUpdate(b);
+        session.commit();
+
+        Book after = mapper.selectById(1);
+        System.out.println("===== 动态更新：改书名 + 分类 =====");
+        System.out.println("更新后：" + after);
+
+        assert rows == 1 : "更新失败";
+        assert "Java编程思想（第四版）".equals(after.getName()) : "书名未更新";
+        assert after.getCategoryId() == 2 : "分类未更新";
+        assert oldPrice.compareTo(after.getPrice()) == 0 : "价格被意外修改！";
+        assert oldAuthor.equals(after.getAuthor()) : "作者被意外修改！";
+
+        before.setName(before.getName());
+        before.setCategoryId(before.getCategoryId());
+        mapper.update(before);
+        session.commit();
+    }
+
     /** 测试删除图书 */
     @Test
     public void testDelete() {

@@ -28,9 +28,16 @@ public interface BookMapper {
     int insert(Book b);
 
     /**
-     * 更新图书信息
+     * 更新图书信息（全字段覆盖）
      */
     int update(Book b);
+
+    /**
+     * 动态更新图书（set 标签）
+     * 只更新 Book 对象中非 null 的字段，null 字段对应的列保持原值不变
+     * 业务场景：管理员只想改图书价格 / 分类 / 书名中的某一个时
+     */
+    int dynamicUpdate(Book b);
 
     /**
      * 根据 ID 删除图书

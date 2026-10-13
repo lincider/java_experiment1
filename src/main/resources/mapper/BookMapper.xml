@@ -54,10 +54,34 @@
         VALUES (#{name}, #{author}, #{price}, #{categoryId})
     </insert>
 
-    <!-- 更新图书 -->
+    <!-- 更新图书（全字段覆盖） -->
     <update id="update">
         UPDATE book
         SET name = #{name}, author = #{author}, price = #{price}, category_id = #{categoryId}
+        WHERE id = #{id}
+    </update>
+
+    <!--
+        动态更新图书（set 标签）
+        哪个字段非 null 就拼哪个 SET 子句，set 标签自动处理末尾多余的逗号
+        注意：id 是 WHERE 条件，不在 set 里出现
+    -->
+    <update id="dynamicUpdate">
+        UPDATE book
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="author != null and author != ''">
+                author = #{author},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+        </set>
         WHERE id = #{id}
     </update>
 
