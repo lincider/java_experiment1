@@ -114,4 +114,41 @@
         ORDER BY id
     </select>
 
+    <!-- ===================== foreach：批量删除 ===================== -->
+
+    <!--
+        foreach 遍历 id 集合，拼接成：
+        DELETE FROM book WHERE id IN (1, 2, 3)
+
+        collection="ids"  对应接口方法的 @Param("ids")
+        item="id"         当前元素（Integer），用 #{id} 取值
+        open="(" close=")" 包裹整个列表
+        separator=","     元素之间用逗号分隔
+    -->
+    <delete id="batchDelete">
+        DELETE FROM book
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- ===================== foreach：批量插入 ===================== -->
+
+    <!--
+        foreach 遍历 book 集合，拼接成：
+        INSERT INTO book (name, author, price, category_id)
+        VALUES (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)
+
+        separator=","  每条完整 VALUES 之间用逗号分隔
+        item="b"       当前元素（Book 对象），用 #{b.name} 等取值
+    -->
+    <insert id="batchInsert">
+        INSERT INTO book (name, author, price, category_id)
+        VALUES
+        <foreach collection="list" item="b" separator=",">
+            (#{b.name}, #{b.author}, #{b.price}, #{b.categoryId})
+        </foreach>
+    </insert>
+
 </mapper>

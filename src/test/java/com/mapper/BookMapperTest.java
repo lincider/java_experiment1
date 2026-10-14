@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -247,5 +249,89 @@ public class BookMapperTest {
         System.out.println("===== 动态查询：书名传空串 =====");
         System.out.println("全不传：" + allCount + " 本，空串：" + emptyStrCount + " 本");
         assert allCount == emptyStrCount : "空串应视为不传，两者结果应一致";
+    }
+
+    // ===================== foreach：批量操作 =====================
+
+    /**
+     * 批量删除：同时删除多本临时图书
+     * 验证点：foreach 正确拼接 IN (?, ?, ...)
+     */
+    @Test
+    public void testBatchDelete() {
+        // 先插入 3 本临时图书，拿到它们的 id
+        int[] tempIds = new int[3];
+        for (int i = 0; i < 3; i++) {
+            Book temp = new Book();
+            temp.setName("批量删除测试-" + i);
+            temp.setAuthor("测试作者");
+            temp.setPrice(new BigDecimal("1.00"));
+            temp.setCategoryId(1);
+            mapper.insert(temp);
+            session.commit();
+            tempIds[i] = temp.getId();
+        }
+
+        List<Integer> ids = Arrays.asList(tempIds[0], tempIds[1], tempIds[2]);
+        int rows = mapper.batchDelete(ids);
+        session.commit();
+
+        System.out.println("===== 批量删除 =====");
+        System.out.println("删除 ID 列表：" + ids);
+        System.out.println("影响行数：" + rows);
+
+        assert rows == 3 : "应删除 3 条，实际：" + rows;
+
+        // 验证确实查不到了
+        for (int id : tempIds) {
+            assert mapper.selectById(id) == null : "id=" + id + " 未被删除！";
+        }
+    }
+
+    /**
+     * 批量插入：一次性插入多本图书
+     * 验证点：foreach 正确拼接多个 VALUES (), (), ()
+     */
+    @Test
+    public void testBatchInsert() {
+        // 构造 3 本图书
+        List<Book> books = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Book b = new Book();
+            b.setName("批量插入测试-" + i);
+            b.setAuthor("批量作者");
+            b.setPrice(new BigDecimal("10.00").add(new BigDecimal(i)));
+            b.setCategoryId(1);
+            books.add(b);
+        }
+
+        int rows = mapper.batchInsert(books);
+        session.commit();
+
+        System.out.println("===== 批量插入 =====");
+        System.out.println("待插入数量：" + books.size());
+        System.out.println("影响行数：" + rows);
+
+        assert rows == 3 : "应插入 3 条，实际：" + rows;
+
+        // 验证图书确实在数据库里，并清理测试数据
+        for (Book b : books) {
+            List<Book> found = mapper.selectByCondition(b.getName(), null, null, null, null);
+            assert !found.isEmpty() : "批量插入后查不到：" + b.getName();
+            System.out.println("  ✓ 验证通过：" + found.get(0));
+            mapper.delete(found.get(0).getId());
+        }
+        session.commit();
+    }
+
+    /**
+     * 批量删除：空集合边界测试
+     * 验证点：传空 list 时 SQL 会生成 "WHERE id IN" 非法语法 → 抛异常
+     * 实际生产应在 Service 层先判空再调用 Mapper
+     */
+    @Test(expected = Exception.class)
+    public void testBatchDelete_空集合_应抛异常() {
+        mapper.batchDelete(new ArrayList<>());
+        session.commit();
     }
 }

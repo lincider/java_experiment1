@@ -54,4 +54,25 @@ public interface BookMapper {
                                  @Param("categoryId") Integer categoryId,
                                  @Param("minPrice") BigDecimal minPrice,
                                  @Param("maxPrice") BigDecimal maxPrice);
+
+    // ===================== foreach：批量操作 =====================
+
+    /**
+     * 批量删除图书（用 foreach 拼接 IN 子句）
+     * 生成 SQL ：DELETE FROM book WHERE id IN (?, ?, ...)
+     *
+     * @param ids 要删除的图书 ID 集合
+     * @return 实际删除的行数
+     */
+    int batchDelete(@Param("ids") List<Integer> ids);
+
+    /**
+     * 批量新增图书（用 foreach 拼接多组 VALUES）
+     * 生成 SQL ：INSERT INTO book (name, author, price, category_id)
+     *           VALUES (?, ?, ?, ?), (?, ?, ?, ?), ...
+     *
+     * @param books 要新增的图书集合
+     * @return 实际插入的行数
+     */
+    int batchInsert(@Param("list") List<Book> books);
 }
