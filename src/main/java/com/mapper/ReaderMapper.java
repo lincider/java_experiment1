@@ -1,12 +1,19 @@
 package com.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.entity.Reader;
+
 import java.util.List;
 
 /**
  * Reader Mapper - 读者表的 CRUD 及多对多关联查询
+ *
+ * 继承 BaseMapper<Reader> 获得通用 CRUD：
+ *   insert / selectById / updateById / deleteById / selectList / selectCount / deleteBatchIds ...
+ *
+ * 只保留 BaseMapper 替代不了的 selectAllWithBooks（多对多关联，XML collection 注入）
  */
-public interface ReaderMapper {
+public interface ReaderMapper extends BaseMapper<Reader> {
 
     /**
      * 查询所有读者，同时查出每人借阅的图书列表（多对多关联）
@@ -14,23 +21,7 @@ public interface ReaderMapper {
      */
     List<Reader> selectAllWithBooks();
 
-    /**
-     * 根据 ID 查询单个读者
-     */
-    Reader selectById(Integer id);
-
-    /**
-     * 新增读者
-     */
-    int insert(Reader r);
-
-    /**
-     * 更新读者信息
-     */
-    int update(Reader r);
-
-    /**
-     * 根据 ID 删除读者
-     */
-    int delete(Integer id);
+    // insert / selectById / updateById / deleteById 全部由 BaseMapper 零 SQL 提供
+    // 手写的 update/delete 已删掉（MP 会接管它们导致参数名不匹配）
+    // 统一用 BaseMapper.updateById(reader) / BaseMapper.deleteById(id)
 }

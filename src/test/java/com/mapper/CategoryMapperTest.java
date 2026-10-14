@@ -79,14 +79,14 @@ public class CategoryMapperTest {
         Category c = mapper.selectById(1);
         String oldName = c.getName();
         c.setName("计算机技术");
-        int rows = mapper.update(c);
+        int rows = mapper.updateById(c);
         session.commit();
         System.out.println("===== 更新分类 =====");
         System.out.println("影响行数：" + rows);
         assert rows == 1 : "更新失败";
         // 恢复原名，避免影响其他测试
         c.setName(oldName);
-        mapper.update(c);
+        mapper.updateById(c);
         session.commit();
     }
 
@@ -100,7 +100,7 @@ public class CategoryMapperTest {
         session.commit();
         Integer tempId = temp.getId();
 
-        int rows = mapper.delete(tempId);
+        int rows = mapper.deleteById(tempId);
         session.commit();
         System.out.println("===== 删除分类 =====");
         System.out.println("影响行数：" + rows);

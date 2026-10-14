@@ -78,14 +78,14 @@ public class ReaderMapperTest {
         Reader r = mapper.selectById(1);
         String oldName = r.getName();
         r.setName("张三（更新）");
-        int rows = mapper.update(r);
+        int rows = mapper.updateById(r);
         session.commit();
         System.out.println("===== 更新读者 =====");
         System.out.println("影响行数：" + rows);
         assert rows == 1 : "更新失败";
         // 恢复原名
         r.setName(oldName);
-        mapper.update(r);
+        mapper.updateById(r);
         session.commit();
     }
 
@@ -100,7 +100,7 @@ public class ReaderMapperTest {
         session.commit();
         Integer tempId = temp.getId();
 
-        int rows = mapper.delete(tempId);
+        int rows = mapper.deleteById(tempId);
         session.commit();
         System.out.println("===== 删除读者 =====");
         System.out.println("影响行数：" + rows);

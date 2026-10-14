@@ -18,11 +18,14 @@
     </properties>
 
     <dependencies>
-        <!-- MyBatis核心 -->
+        <!--
+            MyBatis-Plus 3.5.3.1 内置 MyBatis 3.5.13.1 核心
+            引入原生 mybatis 会造成版本冲突，所以只留 mybatis-plus 即可
+        -->
         <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-            <version>3.5.13</version>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>3.5.3.1</version>
         </dependency>
         <!-- MySQL8驱动 -->
         <dependency>
@@ -43,11 +46,15 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
-        <!-- MyBatis‑Plus -->
+        <!--
+            MP 3.5.3.1 的反射工具类（SpringReflectionHelper）需要 Spring Core 的 GenericTypeResolver
+            虽然是非 Spring 项目，但只需要 spring-core 这一个 jar（不带 Spring 容器）
+            版本和 mybatis-spring:2.0.7 兼容（Spring 5.3.x）
+        -->
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-            <version>3.5.3.1</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.30</version>
         </dependency>
     </dependencies>
 

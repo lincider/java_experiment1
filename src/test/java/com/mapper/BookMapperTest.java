@@ -79,14 +79,14 @@ public class BookMapperTest {
         Book b = mapper.selectById(1);
         String oldName = b.getName();
         b.setName("Java编程思想（更新版）");
-        int rows = mapper.update(b);
+        int rows = mapper.updateById(b);
         session.commit();
         System.out.println("===== 更新图书 =====");
         System.out.println("影响行数：" + rows);
         assert rows == 1 : "更新失败";
         // 恢复原名
         b.setName(oldName);
-        mapper.update(b);
+        mapper.updateById(b);
         session.commit();
     }
 
@@ -122,7 +122,7 @@ public class BookMapperTest {
         assert oldCategoryId.equals(after.getCategoryId()) : "分类被意外修改了！";
 
         before.setPrice(oldPrice);
-        mapper.update(before);
+        mapper.updateById(before);
         session.commit();
     }
 
@@ -155,7 +155,7 @@ public class BookMapperTest {
 
         before.setName(before.getName());
         before.setCategoryId(before.getCategoryId());
-        mapper.update(before);
+        mapper.updateById(before);
         session.commit();
     }
 
@@ -172,7 +172,7 @@ public class BookMapperTest {
         session.commit();
         Integer tempId = temp.getId();
 
-        int rows = mapper.delete(tempId);
+        int rows = mapper.deleteById(tempId);
         session.commit();
         System.out.println("===== 删除图书 =====");
         System.out.println("影响行数：" + rows);
@@ -319,7 +319,7 @@ public class BookMapperTest {
             List<Book> found = mapper.selectByCondition(b.getName(), null, null, null, null);
             assert !found.isEmpty() : "批量插入后查不到：" + b.getName();
             System.out.println("  ✓ 验证通过：" + found.get(0));
-            mapper.delete(found.get(0).getId());
+            mapper.deleteById(found.get(0).getId());
         }
         session.commit();
     }

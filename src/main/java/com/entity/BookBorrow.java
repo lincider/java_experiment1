@@ -1,9 +1,25 @@
 package com.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.time.LocalDate;
 
+/**
+ * 借阅记录表实体（多对多中间表，带冗余字段）
+ *
+ * MP 注解：
+ *   @TableName("book_borrow")      → 对应数据库表名
+ *   @TableId(type = IdType.AUTO)   → 主键自增
+ *
+ * 注意：bookName/bookAuthor/readerName 是冗余字段，也在表里，是合法列，不需要 exist=false
+ *       这张表没有关联对象/集合，所以全是数据库列
+ */
+@TableName("book_borrow")
 public class BookBorrow {
 
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
     private Integer bookId;
     private String bookName;

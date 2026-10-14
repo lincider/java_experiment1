@@ -38,7 +38,7 @@ public class BookBorrowMapperTest {
      */
     @Test
     public void testSelectAll() {
-        List<BookBorrow> list = mapper.selectAll();
+        List<BookBorrow> list = mapper.selectList(null);
         System.out.println("===== 借阅记录列表（冗余字段直接返回）=====");
         for (BookBorrow bb : list) {
             System.out.println("读者：「" + bb.getReaderName() + "」借了「" + bb.getBookName()
@@ -94,7 +94,7 @@ public class BookBorrowMapperTest {
         session.commit();
         Integer tempId = temp.getId();
 
-        int rows = mapper.delete(tempId);
+        int rows = mapper.deleteById(tempId);
         session.commit();
         System.out.println("===== 删除借阅记录 =====");
         System.out.println("影响行数：" + rows);
